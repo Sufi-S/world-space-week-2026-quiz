@@ -217,6 +217,55 @@ async function startServer() {
     });
   });
 
+  // --- DUPLICATES ---
+
+  app.get('/api/duplicates', (req, res) => {
+    const rows = db.exec('SELECT id, topic_id, question, correct_answer FROM questions ORDER BY id');
+    if (!rows.length) return res.json([]);
+    const questions = rows[0].values.map(r => ({
+      id: r[0], topic_id: r[1], question: r[2], correct_answer: r[3],
+    }));
+
+    function normalize(text) {
+      return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function wordSet(text) {
+      return new Set(normalize(text).split(' ').filter(w => w.length > 2));
+    }
+
+    function jaccard(a, b) {
+      let intersection = 0;
+      for (const w of a) if (b.has(w)) intersection++;
+      return intersection / (a.size + b.size - intersection);
+    }
+
+    const duplicates = [];
+    const threshold = 0.7;
+
+    for (let i = 0; i < questions.length; i++) {
+      const wordsI = wordSet(questions[i].question);
+      for (let j = i + 1; j < questions.length; j++) {
+        const wordsJ = wordSet(questions[j].question);
+        const sim = jaccard(wordsI, wordsJ);
+        if (sim >= threshold) {
+          duplicates.push({
+            question_a_id: questions[i].id,
+            question_b_id: questions[j].id,
+            topic_a: questions[i].topic_id,
+            topic_b: questions[j].topic_id,
+            text_a: questions[i].question,
+            text_b: questions[j].question,
+            similarity: Math.round(sim * 100),
+          });
+        }
+      }
+    }
+
+    duplicates.sort((a, b) => b.similarity - a.similarity);
+    res.json(duplicates);
+  });
+
   // --- RANDOM QUESTIONS ---
 
   app.get('/api/questions/random/:count', (req, res) => {

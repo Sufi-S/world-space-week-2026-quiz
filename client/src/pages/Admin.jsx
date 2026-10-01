@@ -7,6 +7,7 @@ export default function Admin() {
   const [questions, setQuestions] = useState([]);
   const [topics, setTopics] = useState([]);
   const [validation, setValidation] = useState([]);
+  const [duplicates, setDuplicates] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [filters, setFilters] = useState({ topic_id: '', difficulty: '', verified: '', flagged: '', search: '' });
 
@@ -14,6 +15,7 @@ export default function Admin() {
     api.getStats().then(setStats);
     api.getTopics().then(setTopics);
     api.getValidation().then(setValidation);
+    api.getDuplicates().then(setDuplicates);
   }, []);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function Admin() {
       <h1 className="page-title">Admin Dashboard</h1>
 
       <div className="tabs">
-        {['overview', 'questions', 'validation'].map(tab => (
+        {['overview', 'questions', 'validation', 'duplicates'].map(tab => (
           <button key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
@@ -213,6 +215,42 @@ export default function Admin() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {activeTab === 'duplicates' && (
+        <div className="card">
+          <h3 style={{ marginBottom: '1rem' }}>
+            Potential Duplicates ({duplicates.length})
+          </h3>
+          {duplicates.length === 0 ? (
+            <p style={{ color: 'var(--success)' }}>No duplicate questions detected.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {duplicates.map((d, i) => (
+                <div key={i} style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '8px', borderLeft: `3px solid ${d.similarity >= 90 ? 'var(--error)' : 'var(--warning)'}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 600 }}>{d.similarity}% similar</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>
+                      Topic {d.topic_a} vs Topic {d.topic_b}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                      <Link to={`/admin/question/${d.question_a_id}`}>Q#{d.question_a_id}</Link>
+                    </div>
+                    <div style={{ fontSize: '0.9rem' }}>{d.text_a}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                      <Link to={`/admin/question/${d.question_b_id}`}>Q#{d.question_b_id}</Link>
+                    </div>
+                    <div style={{ fontSize: '0.9rem' }}>{d.text_b}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

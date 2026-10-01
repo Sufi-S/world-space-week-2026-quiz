@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Topics from './pages/Topics';
@@ -7,6 +8,12 @@ import ReviewMistakes from './pages/ReviewMistakes';
 import Admin from './pages/Admin';
 import AdminQuestion from './pages/AdminQuestion';
 import './App.css';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
 function Nav() {
   const loc = useLocation();
@@ -33,6 +40,7 @@ function Nav() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Nav />
       <main className="app-main">
         <Routes>

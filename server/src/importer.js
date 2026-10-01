@@ -221,6 +221,28 @@ async function runImport() {
     }
   }
 
+  // Duplicate detection
+  const allQs = db.exec('SELECT id, topic_id, question FROM questions ORDER BY id');
+  if (allQs.length) {
+    const qs = allQs[0].values;
+    function normalize(t) { return t.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim(); }
+    function wordSet(t) { return new Set(normalize(t).split(' ').filter(w => w.length > 2)); }
+    for (let i = 0; i < qs.length; i++) {
+      const wordsI = wordSet(qs[i][2]);
+      for (let j = i + 1; j < qs.length; j++) {
+        const wordsJ = wordSet(qs[j][2]);
+        let inter = 0;
+        for (const w of wordsI) if (wordsJ.has(w)) inter++;
+        const sim = inter / (wordsI.size + wordsJ.size - inter);
+        if (sim >= 0.7) {
+          db.run('INSERT INTO validation_issues (question_id, topic_id, issue_type, description, severity) VALUES (?,?,?,?,?)',
+            [qs[j][0], qs[j][1], 'duplicate', `Q${qs[i][0]} and Q${qs[j][0]} are ${Math.round(sim * 100)}% similar`, 'warning']);
+          totalIssues++;
+        }
+      }
+    }
+  }
+
   saveDb();
 
   console.log(`\nImport complete:`);

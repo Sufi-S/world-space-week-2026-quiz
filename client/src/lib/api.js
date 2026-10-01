@@ -48,5 +48,6 @@ export const api = {
   unflagQuestion: (id) => del(`/questions/${id}/flag`),
   getFlagged: () => get('/flagged'),
   getValidation: () => get('/validation'),
+  getDuplicates: () => get('/duplicates'),
   getStats: () => get('/stats'),
 };
