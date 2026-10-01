@@ -1,0 +1,200 @@
+import { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+
+export default function AdminQuestion() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [q, setQ] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({});
+  const [saved, setSaved] = useState(false);
+  const [allIds, setAllIds] = useState([]);
+
+  useEffect(() => {
+    api.getQuestions({}).then(qs => setAllIds(qs.map(q => q.id)));
+  }, []);
+
+  useEffect(() => {
+    api.getQuestion(id).then(data => {
+      setQ(data);
+      setForm(data);
+      setEditing(false);
+      setSaved(false);
+    });
+  }, [id]);
+
+  if (!q) return <div className="loading">Loading question...</div>;
+
+  const currentIndex = allIds.indexOf(q.id);
+  const prevId = currentIndex > 0 ? allIds[currentIndex - 1] : null;
+  const nextId = currentIndex < allIds.length - 1 ? allIds[currentIndex + 1] : null;
+
+  const handleSave = async () => {
+    await api.updateQuestion(q.id, form);
+    setQ({ ...q, ...form });
+    setEditing(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleVerify = async () => {
+    await api.updateQuestion(q.id, { verified: 1 });
+    setQ({ ...q, verified: 1 });
+    setForm({ ...form, verified: 1 });
+  };
+
+  const handleFlag = async () => {
+    const reason = prompt('Flag reason:');
+    if (reason === null) return;
+    await api.flagQuestion(q.id, reason);
+    setQ({ ...q, flagged: 1, flag_reason: reason });
+    setForm({ ...form, flagged: 1, flag_reason: reason });
+  };
+
+  const handleUnflag = async () => {
+    await api.unflagQuestion(q.id);
+    setQ({ ...q, flagged: 0, flag_reason: null });
+    setForm({ ...form, flagged: 0, flag_reason: null });
+  };
+
+  const Field = ({ label, field, textarea }) => (
+    <div style={{ marginBottom: '1rem' }}>
+      <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+        {label}
+      </label>
+      {editing ? (
+        textarea ? (
+          <textarea
+            className="edit-field"
+            value={form[field] || ''}
+            onChange={e => setForm({ ...form, [field]: e.target.value })}
+          />
+        ) : (
+          <input
+            className="edit-field"
+            value={form[field] || ''}
+            onChange={e => setForm({ ...form, [field]: e.target.value })}
+          />
+        )
+      ) : (
+        <div style={{ padding: '0.5rem 0', whiteSpace: 'pre-wrap' }}>{q[field] || <em style={{ color: '#aaa' }}>Empty</em>}</div>
+      )}
+    </div>
+  );
+
+  const validations = [];
+  if (!q.explanation) validations.push({ icon: '!', text: 'Missing explanation', color: 'var(--warning)' });
+  if (!q.source) validations.push({ icon: '!', text: 'Missing source', color: 'var(--warning)' });
+  if (!['A', 'B', 'C', 'D'].includes(q.correct_answer)) validations.push({ icon: 'X', text: 'Invalid answer', color: 'var(--error)' });
+  if (q.explanation) validations.push({ icon: '✓', text: 'Has explanation', color: 'var(--success)' });
+  if (q.source) validations.push({ icon: '✓', text: 'Has source', color: 'var(--success)' });
+  if (['A', 'B', 'C', 'D'].includes(q.correct_answer)) validations.push({ icon: '✓', text: 'Valid answer', color: 'var(--success)' });
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Link to="/admin" className="btn btn-outline btn-sm">&larr; Admin</Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {prevId && <button className="btn btn-outline btn-sm" onClick={() => navigate(`/admin/question/${prevId}`)}>Prev</button>}
+          {nextId && <button className="btn btn-outline btn-sm" onClick={() => navigate(`/admin/question/${nextId}`)}>Next</button>}
+        </div>
+      </div>
+
+      <div className="card" style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <h2 style={{ fontSize: '1.1rem' }}>Question #{q.id}</h2>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Topic {q.topic_id}: {q.topic_name}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span className={`badge badge-${q.difficulty?.toLowerCase()}`}>{q.difficulty}</span>
+            {q.verified ? <span className="badge" style={{ background: '#e8f5e9', color: 'var(--success)' }}>Verified</span> : null}
+            {q.flagged ? <span className="badge" style={{ background: '#ffebee', color: 'var(--error)' }}>Flagged</span> : null}
+          </div>
+        </div>
+
+        <Field label="Question" field="question" textarea />
+        <Field label="Option A" field="option_a" />
+        <Field label="Option B" field="option_b" />
+        <Field label="Option C" field="option_c" />
+        <Field label="Option D" field="option_d" />
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+            Correct Answer
+          </label>
+          {editing ? (
+            <select
+              className="edit-field"
+              value={form.correct_answer || ''}
+              onChange={e => setForm({ ...form, correct_answer: e.target.value })}
+              style={{ width: 'auto' }}
+            >
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          ) : (
+            <div style={{ padding: '0.5rem 0', fontWeight: 700, color: 'var(--success)' }}>{q.correct_answer}</div>
+          )}
+        </div>
+
+        <Field label="Explanation" field="explanation" textarea />
+        <Field label="Source" field="source" />
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+            Difficulty
+          </label>
+          {editing ? (
+            <select
+              className="edit-field"
+              value={form.difficulty || 'Medium'}
+              onChange={e => setForm({ ...form, difficulty: e.target.value })}
+              style={{ width: 'auto' }}
+            >
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          ) : (
+            <div style={{ padding: '0.5rem 0' }}>{q.difficulty}</div>
+          )}
+        </div>
+
+        <Field label="Reviewer Notes" field="reviewer_notes" textarea />
+
+        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--bg)', borderRadius: '8px' }}>
+          <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>Validation</h4>
+          {validations.map((v, i) => (
+            <div key={i} className="validation-badge" style={{ color: v.color, marginBottom: '0.25rem' }}>
+              {v.icon} {v.text}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {editing ? (
+            <>
+              <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
+              <button className="btn btn-outline" onClick={() => { setForm(q); setEditing(false); }}>Cancel</button>
+            </>
+          ) : (
+            <button className="btn btn-primary" onClick={() => setEditing(true)}>Edit</button>
+          )}
+          {!q.verified && <button className="btn btn-success" onClick={handleVerify} style={{ color: 'white' }}>Mark Verified</button>}
+          {q.flagged ? (
+            <button className="btn btn-outline" onClick={handleUnflag}>Unflag</button>
+          ) : (
+            <button className="btn btn-outline" onClick={handleFlag} style={{ color: 'var(--error)' }}>Flag</button>
+          )}
+          {saved && <span style={{ color: 'var(--success)', alignSelf: 'center' }}>Saved!</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
