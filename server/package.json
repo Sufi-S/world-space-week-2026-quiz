@@ -1,0 +1,15 @@
+{
+  "name": "wsw-quiz-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "import": "node src/importer.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "sql.js": "^1.11.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  }
+}
