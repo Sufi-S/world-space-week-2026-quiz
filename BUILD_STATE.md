@@ -3,7 +3,7 @@
 **Last Updated:** 2026-10-01
 
 ## Current Phase
-Phase 12 — Question bank import complete
+Phase 13 — Bug fix: imported questions now visible in frontend
 
 ## Completed Phases
 - Phase 1: Project inspection, Git setup, baseline commit
@@ -18,6 +18,7 @@ Phase 12 — Question bank import complete
 - Phase 10: Testing + responsive polish (mobile/tablet breakpoints, scroll-to-top)
 - Phase 11: Final GitHub checkpoint
 - Phase 12: Generated 1,145 questions for 40 topics, imported 1,125 (20 cross-topic duplicates removed), answer option positions randomised
+- Phase 13: Fixed imported questions not appearing in frontend (root cause: concurrent sql.js process overwrote database; added port-check safety guard to import script)
 
 ## Architecture
 ```
@@ -89,7 +90,7 @@ Backend: http://localhost:3001 | Frontend: http://localhost:5173
 # Full re-import from scratch (destructive — replaces all data):
 cd server && node src/importer.js
 
-# Then add generated questions:
+# Then add generated questions (server must NOT be running):
 cd server && node src/import_generated_questions.js
 ```
 

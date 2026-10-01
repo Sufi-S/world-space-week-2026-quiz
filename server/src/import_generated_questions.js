@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import net from 'net';
 import { fileURLToPath } from 'url';
 import { initDb, saveDb } from './db.js';
 
@@ -7,6 +8,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GEN_DIR = path.join(__dirname, '..', '..', 'research', 'generated_questions');
 const DB_PATH = path.join(__dirname, '..', '..', 'data', 'quiz.db');
 const BACKUP_PATH = DB_PATH + '.backup_before_import';
+
+function checkPortFree(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => { server.close(); resolve(true); });
+    server.listen(port);
+  });
+}
 
 // --- Parsing (reused from importer.js) ---
 
@@ -112,6 +122,14 @@ function normalize(t) {
 // --- Main import ---
 
 async function run() {
+  // 0. Ensure the API server is NOT running (it uses sql.js in-memory and will overwrite our changes)
+  const portFree = await checkPortFree(3001);
+  if (!portFree) {
+    console.error('ERROR: Port 3001 is in use — the API server is likely running.');
+    console.error('Stop the server before importing, or it will overwrite the database with stale data.');
+    process.exit(1);
+  }
+
   // 1. Back up database
   if (fs.existsSync(DB_PATH)) {
     fs.copyFileSync(DB_PATH, BACKUP_PATH);
