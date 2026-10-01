@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getDb, saveDb, initDb } from './db.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -274,6 +277,13 @@ async function startServer() {
     if (!rows.length) return res.json([]);
     const cols = rows[0].columns;
     res.json(rows[0].values.map(r => Object.fromEntries(cols.map((c, i) => [c, r[i]]))));
+  });
+
+  // --- STATIC FRONTEND (production) ---
+  const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+  app.use(express.static(clientDist));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
 
   const PORT = process.env.PORT || 3001;
