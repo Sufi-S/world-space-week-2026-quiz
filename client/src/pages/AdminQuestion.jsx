@@ -59,8 +59,8 @@ export default function AdminQuestion() {
   };
 
   const Field = ({ label, field, textarea }) => (
-    <div style={{ marginBottom: '1rem' }}>
-      <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+    <div style={{ marginBottom: 'var(--space-md)' }}>
+      <label style={{ display: 'block', fontWeight: 600, fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
         {label}
       </label>
       {editing ? (
@@ -78,7 +78,7 @@ export default function AdminQuestion() {
           />
         )
       ) : (
-        <div style={{ padding: '0.5rem 0', whiteSpace: 'pre-wrap' }}>{q[field] || <em style={{ color: '#aaa' }}>Empty</em>}</div>
+        <div style={{ padding: '0.4rem 0', whiteSpace: 'pre-wrap', lineHeight: 1.6, fontSize: '0.92rem' }}>{q[field] || <em style={{ color: 'var(--text-muted)' }}>Empty</em>}</div>
       )}
     </div>
   );
@@ -93,26 +93,26 @@ export default function AdminQuestion() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
         <Link to="/admin" className="btn btn-outline btn-sm">&larr; Admin</Link>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
           {prevId && <button className="btn btn-outline btn-sm" onClick={() => navigate(`/admin/question/${prevId}`)}>Prev</button>}
           {nextId && <button className="btn btn-outline btn-sm" onClick={() => navigate(`/admin/question/${nextId}`)}>Next</button>}
         </div>
       </div>
 
-      <div className="card" style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div className="card" style={{ maxWidth: '860px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-lg)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
           <div>
-            <h2 style={{ fontSize: '1.1rem' }}>Question #{q.id}</h2>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 650 }}>Question #{q.id}</h2>
+            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
               Topic {q.topic_id}: {q.topic_name}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
             <span className={`badge badge-${q.difficulty?.toLowerCase()}`}>{q.difficulty}</span>
-            {q.verified ? <span className="badge" style={{ background: '#e8f5e9', color: 'var(--success)' }}>Verified</span> : null}
-            {q.flagged ? <span className="badge" style={{ background: '#ffebee', color: 'var(--error)' }}>Flagged</span> : null}
+            {q.verified ? <span className="badge" style={{ background: 'var(--success-subtle)', color: 'var(--success)' }}>Verified</span> : null}
+            {q.flagged ? <span className="badge" style={{ background: 'var(--error-subtle)', color: 'var(--error)' }}>Flagged</span> : null}
           </div>
         </div>
 
@@ -122,8 +122,8 @@ export default function AdminQuestion() {
         <Field label="Option C" field="option_c" />
         <Field label="Option D" field="option_d" />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
             Correct Answer
           </label>
           {editing ? (
@@ -139,15 +139,15 @@ export default function AdminQuestion() {
               <option value="D">D</option>
             </select>
           ) : (
-            <div style={{ padding: '0.5rem 0', fontWeight: 700, color: 'var(--success)' }}>{q.correct_answer}</div>
+            <div style={{ padding: '0.4rem 0', fontWeight: 700, color: 'var(--success)' }}>{q.correct_answer}</div>
           )}
         </div>
 
         <Field label="Explanation" field="explanation" textarea />
         <Field label="Source" field="source" />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
             Difficulty
           </label>
           {editing ? (
@@ -162,22 +162,31 @@ export default function AdminQuestion() {
               <option value="Hard">Hard</option>
             </select>
           ) : (
-            <div style={{ padding: '0.5rem 0' }}>{q.difficulty}</div>
+            <div style={{ padding: '0.4rem 0', fontSize: '0.92rem' }}>{q.difficulty}</div>
           )}
         </div>
 
         <Field label="Reviewer Notes" field="reviewer_notes" textarea />
 
-        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--bg)', borderRadius: '8px' }}>
-          <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>Validation</h4>
-          {validations.map((v, i) => (
-            <div key={i} className="validation-badge" style={{ color: v.color, marginBottom: '0.25rem' }}>
-              {v.icon} {v.text}
-            </div>
-          ))}
+        {q.flag_reason && (
+          <div style={{ marginBottom: 'var(--space-md)', padding: 'var(--space-md)', background: 'var(--error-subtle)', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--error)' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--error)', marginBottom: '0.2rem' }}>Flag Reason</div>
+            <div style={{ fontSize: '0.88rem' }}>{q.flag_reason}</div>
+          </div>
+        )}
+
+        <div style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-md)', background: 'var(--bg)', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 'var(--space-sm)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Validation</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-sm) var(--space-md)' }}>
+            {validations.map((v, i) => (
+              <div key={i} className="validation-badge" style={{ color: v.color }}>
+                {v.icon} {v.text}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
           {editing ? (
             <>
               <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
@@ -186,13 +195,13 @@ export default function AdminQuestion() {
           ) : (
             <button className="btn btn-primary" onClick={() => setEditing(true)}>Edit</button>
           )}
-          {!q.verified && <button className="btn btn-success" onClick={handleVerify} style={{ color: 'white' }}>Mark Verified</button>}
+          {!q.verified && <button className="btn btn-success" onClick={handleVerify}>Mark Verified</button>}
           {q.flagged ? (
             <button className="btn btn-outline" onClick={handleUnflag}>Unflag</button>
           ) : (
             <button className="btn btn-outline" onClick={handleFlag} style={{ color: 'var(--error)' }}>Flag</button>
           )}
-          {saved && <span style={{ color: 'var(--success)', alignSelf: 'center' }}>Saved!</span>}
+          {saved && <span style={{ color: 'var(--success)', fontSize: '0.85rem', fontWeight: 500 }}>Saved!</span>}
         </div>
       </div>
     </div>

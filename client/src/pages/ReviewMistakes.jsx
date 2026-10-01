@@ -16,7 +16,7 @@ export default function ReviewMistakes() {
       <div className="empty-state">
         <h2>No mistakes to review</h2>
         <p>Great job! You haven't gotten any questions wrong, or you've already corrected them.</p>
-        <Link to="/practice" className="btn btn-primary" style={{ marginTop: '1rem' }}>Start Practicing</Link>
+        <Link to="/practice" className="btn btn-primary" style={{ marginTop: 'var(--space-md)' }}>Start Practising</Link>
       </div>
     );
   }
@@ -32,17 +32,17 @@ export default function ReviewMistakes() {
   return (
     <div>
       <h1 className="page-title">Review Mistakes</h1>
-      <p className="page-subtitle">{questions.length} questions to review</p>
+      <p className="page-subtitle">{questions.length} question{questions.length !== 1 ? 's' : ''} to review</p>
 
-      <div className="progress-bar" style={{ marginBottom: '1.5rem' }}>
-        <div className="progress-fill" style={{ width: `${((current + 1) / questions.length) * 100}%`, background: 'var(--error)' }} />
+      <div className="progress-bar" style={{ marginBottom: 'var(--space-lg)' }}>
+        <div className="progress-fill" style={{ width: `${((current + 1) / questions.length) * 100}%`, background: 'var(--accent)' }} />
       </div>
 
       <div className="question-card">
         <div className="question-header">
           <span className={`badge badge-${q.difficulty?.toLowerCase()}`}>{q.difficulty}</span>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            {current + 1} / {questions.length} — {q.topic_name}
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            {current + 1} / {questions.length} &middot; {q.topic_name}
           </span>
         </div>
 
@@ -61,7 +61,11 @@ export default function ReviewMistakes() {
         </div>
 
         {!showAnswer ? (
-          <button className="btn btn-primary" onClick={() => setShowAnswer(true)} style={{ width: '100%', justifyContent: 'center' }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowAnswer(true)}
+            style={{ width: '100%', padding: '0.75rem' }}
+          >
             Show Answer & Explanation
           </button>
         ) : (
@@ -69,15 +73,24 @@ export default function ReviewMistakes() {
             <div className="explanation-box">
               <h4>Answer: {q.correct_answer}</h4>
               <p>{q.explanation || 'No explanation available.'}</p>
+              {q.source && (
+                <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  Source: {q.source}
+                </p>
+              )}
             </div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)', flexWrap: 'wrap' }}>
               {current > 0 && (
                 <button className="btn btn-outline" onClick={() => { setCurrent(current - 1); setShowAnswer(false); }}>
                   &larr; Previous
                 </button>
               )}
               {current < questions.length - 1 && (
-                <button className="btn btn-accent" onClick={() => { setCurrent(current + 1); setShowAnswer(false); }} style={{ flex: 1, justifyContent: 'center' }}>
+                <button
+                  className="btn btn-accent"
+                  onClick={() => { setCurrent(current + 1); setShowAnswer(false); }}
+                  style={{ flex: 1 }}
+                >
                   Next &rarr;
                 </button>
               )}

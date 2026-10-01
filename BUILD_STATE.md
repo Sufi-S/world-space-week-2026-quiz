@@ -3,7 +3,7 @@
 **Last Updated:** 2026-10-01
 
 ## Current Phase
-Phase 13 — Bug fix: imported questions now visible in frontend
+Phase 14 — Bug fixes + UI/UX polish pass
 
 ## Completed Phases
 - Phase 1: Project inspection, Git setup, baseline commit
@@ -19,6 +19,33 @@ Phase 13 — Bug fix: imported questions now visible in frontend
 - Phase 11: Final GitHub checkpoint
 - Phase 12: Generated 1,145 questions for 40 topics, imported 1,125 (20 cross-topic duplicates removed), answer option positions randomised
 - Phase 13: Fixed imported questions not appearing in frontend (root cause: concurrent sql.js process overwrote database; added port-check safety guard to import script)
+- Phase 14: Bug fixes (flagging, markdown tables) + comprehensive UI/UX polish
+
+## Phase 14 Changes
+### Bugs Fixed
+1. **Flag question not working (BUG 1):** Root cause — `handleFlag` in Practice.jsx called the API but never updated local state, provided no toggle, and gave no visual feedback. Fix: flag/unflag toggle with state update, visual indicator (flag icon + "Flagged"/"Flag" label), styled active state.
+2. **Markdown tables rendered as raw text (BUG 3):** Root cause — `react-markdown` v10 uses `remark-parse` which doesn't include GFM table support by default. Fix: installed `remark-gfm` plugin and passed it to all `ReactMarkdown` instances. Added table wrapper component for responsive overflow.
+3. **Topic/question visibility (BUG 2):** Verified still working correctly after changes. All 50 topics show non-zero question counts.
+
+### UI/UX Polish
+- Redesigned CSS design system with consistent tokens (spacing, colors, typography, radii, shadows)
+- Improved color palette: deeper navy primary, warmer accent, better semantic colors with subtle variants
+- Consistent spacing scale using CSS custom properties
+- Better typography hierarchy (page titles, section heads, body text, labels)
+- Improved topic cards with cleaner layout and subtle interactions
+- Polished question card with better option buttons, clearer correct/incorrect states
+- Explanation box now color-coded: green border for correct, red for incorrect
+- Added source display in explanations
+- Keyboard navigation for practice (A/B/C/D keys to select, Enter to submit)
+- Better flag button with toggle state and accessible labels
+- Improved admin tables with responsive wrappers
+- Better filter bar styling with focus states
+- Consistent card design with subtle borders
+- Responsive improvements across all breakpoints (desktop, tablet, mobile)
+- Added ARIA roles (tablist, tab, radiogroup) for accessibility
+- Better focus-visible states for keyboard navigation
+- Homepage hero section with centered layout
+- Info banner component for the About section
 
 ## Architecture
 ```
@@ -52,6 +79,15 @@ client/          React + Vite frontend
 - Format: structured markdown with ### Question N headers
 - Backup: `data/quiz.db.backup_before_import`
 
+## Dependencies
+### Server
+- express, cors, sql.js
+
+### Client
+- react, react-dom, react-router-dom
+- react-markdown, remark-gfm (added Phase 14)
+- vite, @vitejs/plugin-react
+
 ## API Endpoints
 - GET /api/topics, /api/topics/:id, /api/topics/:id/questions
 - GET /api/questions (filterable), /api/questions/:id, /api/questions/random/:count
@@ -61,12 +97,12 @@ client/          React + Vite frontend
 - GET /api/validation, /api/stats, /api/duplicates
 
 ## Frontend Pages
-1. **Home** — Dashboard with stats, progress bar, quick actions, recently practiced
+1. **Home** — Dashboard with stats, progress bar, quick actions, recently practised
 2. **Topics** — Grid browser with category tabs (All/Astronomy/Physics/ISRO/International)
-3. **TopicDetail** — Learn content tabs, prerequisite links, difficulty-filtered practice
-4. **Practice** — Question cards, Easy→Hard ordering, NO TIMER, explanations, session stats
+3. **TopicDetail** — Learn content tabs (with GFM table support), prerequisite links, difficulty-filtered practice
+4. **Practice** — Question cards, Easy→Hard ordering, NO TIMER, explanations, flag/unflag toggle, keyboard nav, session stats
 5. **ReviewMistakes** — Incorrect questions not yet corrected, show/hide answers
-6. **Admin** — Overview/Questions/Validation/Duplicates tabs, full filtering
+6. **Admin** — Overview/Questions/Validation/Duplicates tabs, full filtering, responsive tables
 7. **AdminQuestion** — Inline editing, verify/flag/unflag, validation checks, prev/next nav
 
 ## Git History
@@ -74,6 +110,8 @@ client/          React + Vite frontend
 - 2210aa0 feat: add React frontend with learning platform and admin dashboard
 - f7e9077 feat: add duplicate detection, validation enhancements, and responsive polish
 - 96ffcc7 docs: update BUILD_STATE.md with final project status
+- a861c4e feat: add 1,145 generated questions for 40 topics with import script
+- bcd4cd6 fix: prevent concurrent server from overwriting imported questions
 
 ## How to Run
 ```bash
